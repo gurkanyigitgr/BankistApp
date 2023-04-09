@@ -164,13 +164,29 @@ const displayMovements = function (acc, sort = false) {
     containerMovements.insertAdjacentHTML('afterbegin', html);
   });
 };
+const startLogOutTimer = function () {
+  const tick = function () {
+    const min = String(Math.trunc(time / 60)).padStart(2, 0);
+    const sec = String(time % 60).padStart(2, 0);
 
-let currentAccount;
+    labelTimer.textContent = `${min}:${sec}`;
 
-// FAKE ALWAYS LOGGED IN
-currentAccount = account1;
-updatedUI(currentAccount);
-containerApp.style.opacity = 100;
+    if (time === 0) {
+      clearInterval(timer);
+
+      labelWelcome.textContent = `Log in to get started`;
+      containerApp.style.opacity = 0;
+    }
+    time--;
+  };
+  let time = 300;
+
+  tick();
+  const timer = setInterval(tick, 1000);
+  return timer;
+};
+
+let currentAccount, timer;
 
 // Experimenting API
 
@@ -208,6 +224,8 @@ btnLogin.addEventListener('click', function (e) {
     inputLoginUsername.value = inputLoginPin.value = '';
     inputLoginPin.blur();
 
+    if (timer) clearInterval(timer);
+    timer = startLogOutTimer();
     // Update UI
     updatedUI(currentAccount);
   }
@@ -227,16 +245,22 @@ btnTransfer.addEventListener('click', function (e) {
     currentAccount.balance >= amount &&
     receiverAcc?.username !== currentAccount.username
   ) {
+    setTimeout(function () {
+      currentAccount.movements.push(-amount);
+      receiverAcc.movements.push(amount);
+
+      // Add transfer date
+      currentAccount.movementsDates.push(new Date().toISOString());
+      receiverAcc.movementsDates.push(new Date().toISOString());
+
+      //Update UI
+      updatedUI(currentAccount);
+    }, 2500);
     // Doing the transfer
-    currentAccount.movements.push(-amount);
-    receiverAcc.movements.push(amount);
 
-    // Add transfer date
-    currentAccount.movementsDates.push(new Date().toISOString());
-    receiverAcc.movementsDates.push(new Date().toISOString());
-
-    //Update UI
-    updatedUI(currentAccount);
+    // Reset timer
+    clearInterval(timer);
+    timer = startLogOutTimer();
   }
 });
 
@@ -246,16 +270,22 @@ btnLoan.addEventListener('click', function (e) {
   const amount = Math.floor(inputLoanAmount.value);
 
   if (amount > 0 && currentAccount.movements.some(mov => mov >= amount * 0.1)) {
-    // Add movement
-    currentAccount.movements.push(amount);
+    setTimeout(function () {
+      // Add movement
+      currentAccount.movements.push(amount);
 
-    // Add loan date
-    currentAccount.movementsDates.push(new Date().toISOString());
+      // Add loan date
+      currentAccount.movementsDates.push(new Date().toISOString());
 
-    // Update UI
-    updatedUI(currentAccount);
+      // Update UI
+      updatedUI(currentAccount);
+    }, 2500);
   }
   inputLoanAmount.value = '';
+
+  // Reset timer
+  clearInterval(timer);
+  timer = startLogOutTimer();
 });
 
 btnClose.addEventListener('click', function (e) {
@@ -292,12 +322,3 @@ const options = {
   style: 'unit',
   unit: 'mile-per-hour',
 };
-console.log('US :    ', new Intl.NumberFormat('en-Us', options).format(num));
-console.log(
-  'Germany :    ',
-  new Intl.NumberFormat('de-DE', options).format(num)
-);
-console.log(
-  'Türkiye :    ',
-  new Intl.NumberFormat('tr-TR', options).format(num)
-);

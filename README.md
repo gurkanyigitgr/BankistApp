@@ -34,6 +34,15 @@ If you would like to contribute to the project, please follow these steps:
 3. Apply changes to your forked project by committing and pushing.
 4. Submit a pull request to the original project to propose your changes.
 
+## Live Demo
+
+You can try out the live version of the Bankist App [here](https://sparkly-yeot-63648e.netlify.app/).
+
+## Screenshots
+
+![Screenshot 1](./screenshots/screenshot1.png)
+![Screenshot 2](./screenshots/screenshot2.png)
+
 ## License
 
 Bankist App is licensed under the [MIT License](LICENSE).
